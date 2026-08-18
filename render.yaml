@@ -1,0 +1,162 @@
+envVarGroups:
+  - name: aimart-shared
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: RABBIT_URL
+        sync: false
+
+services:
+  - name: aimart-auth
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: AUTH
+    dockerfilePath: ./Dockerfile
+    envVarGroups:
+      - aimart-shared
+    envVars:
+      - key: MONGO_URL
+        sync: false
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: REDIS_TLS
+        value: "true"
+
+  - name: aimart-product
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: PRODUCT
+    dockerfilePath: ./Dockerfile
+    envVarGroups:
+      - aimart-shared
+    envVars:
+      - key: MONGO_URL
+        sync: false
+      - key: IMAGEKIT_PUBLIC_KEY
+        sync: false
+      - key: IMAGEKIT_PRIVATE_KEY
+        sync: false
+      - key: IMAGEKIT_URL_ENDPOINT
+        sync: false
+
+  - name: aimart-cart
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: CART
+    dockerfilePath: ./Dockerfile
+    envVarGroups:
+      - aimart-shared
+    envVars:
+      - key: MONGO_URL
+        sync: false
+
+  - name: aimart-order
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: ORDER
+    dockerfilePath: ./Dockerfile
+    envVarGroups:
+      - aimart-shared
+    envVars:
+      - key: MONGO_URL
+        sync: false
+      - key: CART_SERVICE_URL
+        value: https://aimart-cart.onrender.com
+      - key: PRODUCT_SERVICE_URL
+        value: https://aimart-product.onrender.com
+
+  - name: aimart-payment
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: PAYMENT
+    dockerfilePath: ./Dockerfile
+    envVarGroups:
+      - aimart-shared
+    envVars:
+      - key: MONGO_URL
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: ORDER_SERVICE_URL
+        value: https://aimart-order.onrender.com
+
+  - name: aimart-ai-buddy
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: AI-BUDDY
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: JWT_SECRET
+        fromGroup: aimart-shared
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: PRODUCT_SERVICE_URL
+        value: https://aimart-product.onrender.com
+      - key: CART_SERVICE_URL
+        value: https://aimart-cart.onrender.com
+
+  - name: aimart-notification
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: NOTIFICATION
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: RABBIT_URL
+        fromGroup: aimart-shared
+      - key: EMAIL_USER
+        sync: false
+      - key: CLIENT_ID
+        sync: false
+      - key: CLIENT_SECRET
+        sync: false
+      - key: REFRESH_TOKEN
+        sync: false
+
+  - name: aimart-seller-dashboard
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: SELLER-DASHBOARD
+    dockerfilePath: ./Dockerfile
+    envVarGroups:
+      - aimart-shared
+    envVars:
+      - key: MONGO_URL
+        sync: false
+
+  - name: aimart-gateway
+    type: web
+    runtime: docker
+    plan: free
+    rootDir: GATEWAY
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: AUTH_SERVICE_URL
+        value: https://aimart-auth.onrender.com
+      - key: PRODUCT_SERVICE_URL
+        value: https://aimart-product.onrender.com
+      - key: CART_SERVICE_URL
+        value: https://aimart-cart.onrender.com
+      - key: ORDER_SERVICE_URL
+        value: https://aimart-order.onrender.com
+      - key: PAYMENT_SERVICE_URL
+        value: https://aimart-payment.onrender.com
+      - key: AI_BUDDY_SERVICE_URL
+        value: https://aimart-ai-buddy.onrender.com
+      - key: SELLER_DASHBOARD_SERVICE_URL
+        value: https://aimart-seller-dashboard.onrender.com
